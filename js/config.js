@@ -19,7 +19,7 @@ const FUNCTIONS_BASE_URL = "https://us-central1-yt-study-notes.cloudfunctions.ne
 
 // Razorpay Configuration
 // TODO: Replace with your actual Razorpay publishable key
-const RAZORPAY_KEY_ID = "rzp_test_YOUR_KEY_ID_HERE"; // Replace with your Razorpay key
+const RAZORPAY_KEY_ID = "rzp_test_Rc5wMwaZkbtRjZ"; // Replace with your Razorpay key
 
 // Pricing Configuration (in INR - update with your actual prices)
 const PRICING = {
