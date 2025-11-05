@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade to Premium - YT Study Notes</title>
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <h1>YT Study Notes</h1>
+                <span class="badge" id="premiumBadge">Free</span>
+            </div>
+            <div class="auth-status" id="authStatus">
+                <span id="userEmail"></span>
+                <button id="signOutBtn" class="btn-secondary" style="display: none;">Sign Out</button>
+            </div>
+        </header>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Sign In Screen -->
+        <div id="signInScreen" class="sign-in-screen" style="display: none;">
+            <div class="card">
+                <h2>Sign In Required</h2>
+                <p>Please sign in with your Google account to proceed with the upgrade.</p>
+                <button id="signInBtn" class="btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Payment Screen -->
+        <div id="paymentScreen" class="payment-screen" style="display: none;">
+            <!-- Premium Status Card -->
+            <div class="card status-card" id="statusCard">
+                <div class="status-header">
+                    <h2>Your Premium Status</h2>
+                </div>
+                <div class="status-content">
+                    <div class="status-badge" id="currentStatusBadge">
+                        <span class="status-icon">⭐</span>
+                        <span class="status-text">Free Plan</span>
+                    </div>
+                    <div id="trialInfo" class="trial-info" style="display: none;">
+                        <p>🎉 You're on a <strong>14-day free trial</strong></p>
+                        <p class="trial-ends">Trial ends: <span id="trialEndDate"></span></p>
+                    </div>
+                    <div id="premiumInfo" class="premium-info" style="display: none;">
+                        <p>✅ You have active Premium access</p>
+                        <p class="expires">Expires: <span id="expiresDate"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features List -->
+            <div class="card features-card">
+                <h2>Premium Features</h2>
+                <ul class="features-list">
+                    <li>✨ Unlimited videos</li>
+                    <li>✨ Unlimited notes per video</li>
+                    <li>☁️ Cloud sync across devices</li>
+                    <li>🔇 Automatic ad muting</li>
+                    <li>🌙 Distraction-free mode</li>
+                </ul>
+            </div>
+
+            <!-- Pricing Options -->
+            <div class="pricing-section">
+                <h2>Choose Your Plan</h2>
+                
+                <!-- One-Time Payment -->
+                <div class="pricing-card" data-type="one-time">
+                    <div class="pricing-header">
+                        <h3>Lifetime Premium</h3>
+                        <div class="price">
+                            <span class="currency">₹</span>
+                            <span class="amount" id="oneTimePrice">999</span>
+                            <span class="period">one-time</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✅ All premium features</li>
+                        <li>✅ Lifetime access</li>
+                        <li>✅ No recurring charges</li>
+                        <li>✅ Best value</li>
+                    </ul>
+                    <button class="btn-primary pricing-btn" data-plan="one-time">
+                        Choose Lifetime
+                    </button>
+                </div>
+
+                <!-- Monthly Subscription -->
+                <div class="pricing-card" data-type="monthly">
+                    <div class="pricing-badge">Most Popular</div>
+                    <div class="pricing-header">
+                        <h3>Monthly</h3>
+                        <div class="price">
+                            <span class="currency">₹</span>
+                            <span class="amount" id="monthlyPrice">199</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <div class="trial-badge">14-day free trial</div>
+                    <ul class="pricing-features">
+                        <li>✅ All premium features</li>
+                        <li>✅ 14-day free trial</li>
+                        <li>✅ Cancel anytime</li>
+                        <li>✅ Monthly billing</li>
+                    </ul>
+                    <button class="btn-primary pricing-btn" data-plan="monthly">
+                        Start Free Trial
+                    </button>
+                </div>
+
+                <!-- Annual Subscription -->
+                <div class="pricing-card highlight" data-type="annual">
+                    <div class="pricing-badge">Best Value</div>
+                    <div class="pricing-header">
+                        <h3>Annual</h3>
+                        <div class="price">
+                            <span class="currency">₹</span>
+                            <span class="amount" id="annualPrice">1999</span>
+                            <span class="period">/year</span>
+                        </div>
+                        <div class="price-note">Save ₹389/year</div>
+                    </div>
+                    <div class="trial-badge">14-day free trial</div>
+                    <ul class="pricing-features">
+                        <li>✅ All premium features</li>
+                        <li>✅ 14-day free trial</li>
+                        <li>✅ Save 17% vs monthly</li>
+                        <li>✅ Annual billing</li>
+                    </ul>
+                    <button class="btn-primary pricing-btn" data-plan="annual">
+                        Start Free Trial
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+
