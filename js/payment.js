@@ -21,6 +21,22 @@ async function createCheckoutSession(planType) {
         // Get Firebase Auth token for authentication
         const idToken = await user.getIdToken();
 
+        // Prepare request body
+        const pricingInfo = PRICING[planType];
+        if (!pricingInfo) {
+            throw new Error(`Invalid plan type: ${planType}`);
+        }
+        
+        const requestBody = {
+            userId: user.uid,
+            planType: planType,
+            trialDays: planType !== 'one-time' ? (pricingInfo.trialDays || 0) : 0
+        };
+
+        console.log('Creating order with:', requestBody);
+        console.log('PRICING object:', PRICING);
+        console.log('PRICING[planType]:', PRICING[planType]);
+
         // Call Firebase Function to create Razorpay order
         const response = await fetch(`${FUNCTIONS_BASE_URL}/createRazorpayOrder`, {
             method: 'POST',
@@ -28,16 +44,20 @@ async function createCheckoutSession(planType) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${idToken}`
             },
-            body: JSON.stringify({
-                userId: user.uid,
-                planType: planType,
-                trialDays: planType !== 'one-time' ? PRICING[planType].trialDays : 0
-            })
+            body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to create order');
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                // If response is not JSON, use status text
+                errorData = { error: `Server error: ${response.status} ${response.statusText}` };
+            }
+            console.error('Server error response:', errorData);
+            const errorMessage = errorData.error || errorData.message || `Server error: ${response.status} ${response.statusText}`;
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
