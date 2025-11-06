@@ -139,7 +139,7 @@ function setupPaymentButtons() {
 // Update pricing display
 function updatePricingDisplay() {
     // One-time
-    document.getElementById('oneTimePrice').textContent = PRICING.oneTime.amount.toLocaleString('en-IN');
+    document.getElementById('oneTimePrice').textContent = PRICING['one-time'].amount.toLocaleString('en-IN');
     
     // Monthly
     document.getElementById('monthlyPrice').textContent = PRICING.monthly.amount.toLocaleString('en-IN');

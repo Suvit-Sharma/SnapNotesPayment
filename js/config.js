@@ -23,7 +23,7 @@ const RAZORPAY_KEY_ID = "rzp_test_Rc5wMwaZkbtRjZ"; // Replace with your Razorpay
 
 // Pricing Configuration (in INR - update with your actual prices)
 const PRICING = {
-    oneTime: {
+    'one-time': {
         amount: 999, // ₹999
         currency: "INR",
         label: "Lifetime Premium"
