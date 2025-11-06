@@ -18,17 +18,19 @@ async function createCheckoutSession(planType) {
             button.textContent = 'Processing...';
         }
 
+        // Get Firebase Auth token for authentication
+        const idToken = await user.getIdToken();
+
         // Call Firebase Function to create Razorpay order
         const response = await fetch(`${FUNCTIONS_BASE_URL}/createRazorpayOrder`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
             },
             body: JSON.stringify({
                 userId: user.uid,
                 planType: planType,
-                amount: PRICING[planType === 'one-time' ? 'oneTime' : planType].amount,
-                currency: PRICING[planType === 'one-time' ? 'oneTime' : planType].currency,
                 trialDays: planType !== 'one-time' ? PRICING[planType].trialDays : 0
             })
         });
@@ -114,11 +116,19 @@ function initializeRazorpayCheckout(orderData) {
 // Handle successful payment
 async function handlePaymentSuccess(response, orderData) {
     try {
+        // Get Firebase Auth token for authentication
+        const user = getCurrentUser();
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
+        const idToken = await user.getIdToken();
+
         // Verify payment with Firebase Function
         const verifyResponse = await fetch(`${FUNCTIONS_BASE_URL}/verifyRazorpayPayment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
             },
             body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
